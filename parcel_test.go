@@ -33,9 +33,8 @@ func getTestParcel() Parcel {
 func TestAddGetDelete(t *testing.T) {
 	// prepare
 	db, err := sql.Open("sqlite", "tracker.db")
-	if err != nil {
-		require.NoError(t, err)
-	} // настройте подключение к БД
+	require.NoError(t, err)
+	// настройте подключение к БД
 	store := NewParcelStore(db)
 	parcel := getTestParcel()
 	defer db.Close()
