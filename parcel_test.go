@@ -57,7 +57,7 @@ func TestAddGetDelete(t *testing.T) {
 	require.NoError(t, err)
 	// проверьте, что посылку больше нельзя получить из БД
 	_, err = store.Get(id)
-	require.Equal(t, sql.ErrNoRows, err)
+	require.EqualError(t, err, "sql: no rows in result set")
 }
 
 // TestSetAddress проверяет обновление адреса

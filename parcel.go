@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"log"
 )
 
 type ParcelStore struct {
@@ -41,7 +40,7 @@ func (s ParcelStore) Get(number int) (Parcel, error) {
 	p := Parcel{}
 	err := row.Scan(&p.Number, &p.Client, &p.Status, &p.Address, &p.CreatedAt)
 	if err != nil {
-		return p, err
+		return Parcel{}, err
 	}
 
 	return p, nil
@@ -53,7 +52,6 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 	rows, err := s.db.Query("SELECT * FROM parcel WHERE client = :client",
 		sql.Named("client", client))
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -64,8 +62,7 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 		pars := Parcel{}
 		err := rows.Scan(&pars.Number, &pars.Client, &pars.Status, &pars.Address, &pars.CreatedAt)
 		if err != nil {
-			log.Println(err)
-			return nil, err
+			return []Parcel{}, err
 		}
 		res = append(res, pars)
 	}
@@ -83,17 +80,19 @@ func (s ParcelStore) SetStatus(number int, status string) error {
 func (s ParcelStore) SetAddress(number int, address string) error {
 	// реализуйте обновление адреса в таблице parcel
 	// менять адрес можно только если значение статуса registered
-	_, err := s.db.Exec("UPDATE  parcel SET address = :address WHERE number = :number AND status = 'registered'",
+	_, err := s.db.Exec("UPDATE  parcel SET address = :address WHERE number = :number AND status = :registered",
 		sql.Named("address", address),
-		sql.Named("number", number))
+		sql.Named("number", number),
+		sql.Named("registered", ParcelStatusRegistered))
 	return err
 }
 
 func (s ParcelStore) Delete(number int) error {
 	// реализуйте удаление строки из таблицы parcel
 	// удалять строку можно только если значение статуса registered
-	_, err := s.db.Exec("DELETE FROM parcel WHERE number = :number AND status = 'registered'",
-		sql.Named("number", number))
+	_, err := s.db.Exec("DELETE FROM parcel WHERE number = :number AND status = :registered",
+		sql.Named("number", number),
+		sql.Named("registered", ParcelStatusRegistered))
 	return err
 
 }
